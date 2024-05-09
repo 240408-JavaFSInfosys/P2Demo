@@ -30,6 +30,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
     }
 
+    //This method is called for each request that hits our server
+    //It checks if the request has a valid JWT in the Authorization header
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
@@ -42,22 +44,25 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             return;
         }
 
+        //If the Authorization header contains a Bearer token...
+        //extract the token to try verifying it.
         String token = getAccessToken(request);
 
-        //if the token is not verified,
+        //if the token is not valid (expired, malformed, etc.)
         //continue the filter chain without updating authentication context.
         if (!jwtUtil.validateAccessToken(token)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        //if the token is verified,
-        //update the authentication context with the user details ID and email.
+        //if the token IS verified,
+        //update the authentication context with the user details (ID and username).
         setAuthenticationContext(token, request);
         filterChain.doFilter(request, response);
     }
 
-    //This is what extracts the Authorization header in our HTTP request to check for the JWT
+    //This method extracts the Authorization header in our HTTP request to check for the JWT
+    //(The first check in our filter)
     private boolean hasAuthorizationBearer(HttpServletRequest request) {
         String header = request.getHeader("Authorization");
         if (ObjectUtils.isEmpty(header) || !header.startsWith("Bearer")) {
@@ -66,12 +71,18 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         return true;
     }
 
+    //This method extracts the JWT from the Authorization header
+    //(For use in the second check in our filter)
     private String getAccessToken(HttpServletRequest request) {
         String header = request.getHeader("Authorization");
         String token = header.split(" ")[1].trim();
         return token;
     }
 
+    /* this method extracts the user details from the JWT token,
+    creating an Authentication object with these details,
+    and setting this Authentication object in the security context.
+    (necessary for Spring Security to work) */
     private void setAuthenticationContext(String token, HttpServletRequest request) {
         UserDetails userDetails = getUserDetails(token);
 
@@ -84,12 +95,13 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
+    //This is used to extract the userId and email from the JWT in the method above
     private UserDetails getUserDetails(String token) {
         User userDetails = new User();
-        String[] jwtSubject = jwtUtil.getSubject(token).split(",");
 
-        userDetails.setUserId(Integer.parseInt(jwtSubject[0]));
-        userDetails.setUsername(jwtSubject[1]);
+        //use the extractor methods we wrote in JwtTokenUtil to get the userId and username
+        userDetails.setUserId(jwtUtil.extractUserId(token));
+        userDetails.setUsername(jwtUtil.extractUsername(token));
 
         System.out.println(userDetails);
 

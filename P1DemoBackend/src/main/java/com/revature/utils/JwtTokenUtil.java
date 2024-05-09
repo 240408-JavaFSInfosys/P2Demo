@@ -60,7 +60,7 @@ public class JwtTokenUtil {
 
     public String generateAccessToken(User u) {
         return Jwts.builder()
-                .setSubject(String.format("%s,%s", u.getUserId()))
+                .setSubject(String.format("%s", u.getUserId()))
                 .claim("username", u.getUsername())
                 //.claim("role", u.getRole()) <---Hypothetical role claim
                 .setIssuer("Project1")
@@ -74,11 +74,8 @@ public class JwtTokenUtil {
     //the subject tends to be used for unique identifiers
     public int extractUserId(String token) {
         Jws<Claims> claimsJws = Jwts.parserBuilder().setSigningKey(SECRET_KEY).build().parseClaimsJws(token);
-        //System.out.println(claimsJws);
         String subject = claimsJws.getBody().getSubject();
-        System.out.println("SUBJECT: " + subject);
-        String[] parts = subject.split(",");
-        return Integer.parseInt(parts[0]);
+        return Integer.parseInt(subject);
     }
 
     //we need this method to get the username (and any other claim) from the JWT

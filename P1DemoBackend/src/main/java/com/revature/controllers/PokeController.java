@@ -49,6 +49,12 @@ public class PokeController {
 
         String jwt = token.substring(7); // Remove "Bearer " from the token
         int userId = jwtTokenUtil.extractUserId(jwt);
+        System.out.println("User ID from subject: " + userId);
+
+        //just for fun, showing we can get the username from our extractor method
+        //you'll extract user Role in a similar way
+        String username = jwtTokenUtil.extractUsername(jwt);
+        System.out.println("Username from claims: " + username);
 
         //Why return in many line when one line do trick?
         return ResponseEntity.ok(pokemonService.getAllPokemon(userId));
