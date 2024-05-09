@@ -3,6 +3,7 @@ package com.revature.controllers;
 import com.revature.models.DTOs.IncomingPokeDTO;
 import com.revature.models.Pokemon;
 import com.revature.services.PokemonService;
+import com.revature.utils.JwtTokenUtil;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,10 +15,12 @@ import org.springframework.web.bind.annotation.*;
 public class PokeController {
 
     private PokemonService pokemonService;
+    private JwtTokenUtil jwtTokenUtil;
 
     @Autowired
-    public PokeController(PokemonService pokemonService) {
+    public PokeController(PokemonService pokemonService, JwtTokenUtil jwtTokenUtil) {
         this.pokemonService = pokemonService;
+        this.jwtTokenUtil = jwtTokenUtil;
     }
 
     //post mapping for inserting new pokemon
@@ -42,15 +45,10 @@ public class PokeController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getAllPokemon(HttpSession session){
+    public ResponseEntity<?> getAllPokemon(@RequestHeader("Authorization") String token){
 
-        //Login check
-        if(session.getAttribute("userId") == null){
-            return ResponseEntity.status(401).body("You must be logged in to see your Pokemon!");
-        }
-
-        //Get the userId from the session
-        int userId = (int) session.getAttribute("userId");
+        String jwt = token.substring(7); // Remove "Bearer " from the token
+        int userId = jwtTokenUtil.extractUserId(jwt);
 
         //Why return in many line when one line do trick?
         return ResponseEntity.ok(pokemonService.getAllPokemon(userId));

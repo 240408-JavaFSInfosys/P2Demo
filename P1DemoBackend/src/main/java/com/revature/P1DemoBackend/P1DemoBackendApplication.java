@@ -7,7 +7,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
-@EntityScan("com.revature.models") //This is telling Spring to look for DB entities here
+@EntityScan("com.revature") //This is telling Spring to look for DB entities here
 @ComponentScan("com.revature") //Spring will look for Beans within com.revature (and its subpackages)
 @EnableJpaRepositories("com.revature.DAOs") //This allows us to use JpaRepository in our daos
 public class P1DemoBackendApplication {
