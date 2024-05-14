@@ -76,8 +76,14 @@ public class UserController {
 
             System.out.println("ACCESS TOKEN---------------------- " + accessToken);
 
-            //send the JWT back with a 200 status code
-            return ResponseEntity.ok().body(accessToken);
+            //create our OutgoingUserDTO to send back
+            OutgoingUserDTO userOut = new OutgoingUserDTO(
+                    user.getUserId(),
+                    user.getUsername(),
+                    accessToken);
+
+            //send the OutgoingUserDTO (now with JWT!) back with a 200 status code
+            return ResponseEntity.ok().body(userOut);
 
         } catch (BadCredentialsException e){
             //if login fails, return a 401 (UNAUTHORIZED) and the exception message

@@ -25,16 +25,14 @@ public class PokeController {
 
     //post mapping for inserting new pokemon
     @PostMapping()
-    public ResponseEntity<String> addPokemon(@RequestBody IncomingPokeDTO pokeDTO, HttpSession session){
+    public ResponseEntity<String> addPokemon(@RequestBody IncomingPokeDTO pokeDTO, @RequestHeader("Authorization") String token){
 
-        //If the user is not logged in (if the userId is null), send back a 401
-        if(session.getAttribute("userId") == null){
-            return ResponseEntity.status(401).body("Jenkins says:You must be logged in to catch Pokemon!");
-        }
+        String jwt = token.substring(7); // Remove "Bearer " from the token
+        int userId = jwtTokenUtil.extractUserId(jwt);
+        System.out.println("User ID from subject: " + userId);
 
-        //Now that we have user info saved (in our HTTP Session), we can attach the stored user Id to the pokeDTO
-        pokeDTO.setUserId((int) session.getAttribute("userId"));
-        //why do we need to cast to an int? getAttribute returns an Object
+        //we can attach the stored user ID from the JWT to the pokeDTO
+        pokeDTO.setUserId(userId);
 
         //TODO: try/catch once we decide to do some error handling
         Pokemon p = pokemonService.addPokemon(pokeDTO);

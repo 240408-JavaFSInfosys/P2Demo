@@ -6,6 +6,7 @@ public class OutgoingUserDTO {
 
     private int userId;
     private String username;
+    private String JWT;
 
     public OutgoingUserDTO() {
     }
@@ -13,6 +14,12 @@ public class OutgoingUserDTO {
     public OutgoingUserDTO(int userId, String username) {
         this.userId = userId;
         this.username = username;
+    }
+
+    public OutgoingUserDTO(int userId, String username, String JWT) {
+        this.userId = userId;
+        this.username = username;
+        this.JWT = JWT;
     }
 
     public int getUserId() {
@@ -31,11 +38,20 @@ public class OutgoingUserDTO {
         this.username = username;
     }
 
+    public String getJWT() {
+        return JWT;
+    }
+
+    public void setJWT(String JWT) {
+        this.JWT = JWT;
+    }
+
     @Override
     public String toString() {
         return "OutgoingUserDTO{" +
                 "userId=" + userId +
                 ", username='" + username + '\'' +
+                ", JWT='" + JWT + '\'' +
                 '}';
     }
 }
