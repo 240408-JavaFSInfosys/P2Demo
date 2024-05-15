@@ -52,7 +52,8 @@ export const Login: React.FC = () => {
             navigate("/catch")
 
         })
-        .catch((error) => {alert("Login Failed!")}) //If login fails, tell the user that
+        .catch((error) => {alert("Login Failed!")}
+    ) //If login fails, tell the user that
 
     }
 
