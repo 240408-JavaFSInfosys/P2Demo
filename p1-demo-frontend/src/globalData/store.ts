@@ -12,6 +12,7 @@ export const state:any = {
         userId:0,
         username:"",
         //role:"" <- This would be used to determine if a user can do certain things
+        jwt:""
     } as UserInterface,
 
     //storing the last caught pokemon for global display
@@ -27,8 +28,6 @@ export const state:any = {
     //we could also store things like base URLs (which I won't use)
     baseUrl:"http://localhost:8080",
     basePokemonUrl:"http://localhost:8080/pokemon"
-
-    //TODO: store our incoming JWT 
 
 }
 
