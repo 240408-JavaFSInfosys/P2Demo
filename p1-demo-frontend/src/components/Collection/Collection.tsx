@@ -3,6 +3,7 @@ import { PokemonInterface } from "../../interfaces/PokemonInterface"
 import axios from "axios"
 import { Pokemon } from "../Pokemon/Pokemon"
 import "./Collection.css"
+import { state } from "../../globalData/store"
 
 export const Collection: React.FC = () => {
 
@@ -21,7 +22,12 @@ export const Collection: React.FC = () => {
     const getAllPokemon = async () => {
 
         //our GET request (remember to send withCredentials to confirm the user is logged in)
-        const response = await axios.get("http://localhost:8080/pokemon", {withCredentials:true})
+        const response = await axios.get("http://localhost:8080/pokemon", {
+            withCredentials: true,
+            headers: {
+              'Authorization': 'Bearer: ' + state.userSessionData.jwt
+            }
+        })
 
         //populate the pokemon state  
         setPokemon(response.data)
@@ -35,7 +41,14 @@ export const Collection: React.FC = () => {
 
         //TODO: throw some error if pokeId is typeof undefined
 
-        const response = await axios.delete("http://localhost:8080/pokemon/" + pokeId, {withCredentials:true})
+        console.log("Bearer: " + state.userSessionData.jwt)
+
+        const response = await axios.delete("http://localhost:8080/pokemon/" + pokeId,{
+            withCredentials: true,
+            headers: {
+              'Authorization': 'Bearer: ' + state.userSessionData.jwt
+            }
+        })
         .then((response) => alert(response.data))
         .then(() => getAllPokemon())
         .catch(
