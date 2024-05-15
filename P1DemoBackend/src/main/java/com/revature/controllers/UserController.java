@@ -4,9 +4,14 @@ import com.revature.models.DTOs.IncomingUserDTO;
 import com.revature.models.DTOs.OutgoingUserDTO;
 import com.revature.models.User;
 import com.revature.services.UserService;
+import com.revature.utils.JwtTokenUtil;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -18,12 +23,18 @@ import java.util.Optional;
 @CrossOrigin(origins = "http://localhost:3000, http://44.220.158.169", allowCredentials = "true")
 public class UserController {
 
-    //autowire user service
+    //autowire user service, JwtTokenUtil, AuthenticationManager, and PasswordEncoder
     private UserService userService;
+    private AuthenticationManager authManager;
+    private JwtTokenUtil jwtUtil;
+    private PasswordEncoder passwordEncoder; //SPRING SECURITY - lets us encode our passwords
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, AuthenticationManager authManager, JwtTokenUtil jwtUtil, PasswordEncoder passwordEncoder) {
         this.userService = userService;
+        this.authManager = authManager;
+        this.jwtUtil = jwtUtil;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @PostMapping
@@ -31,6 +42,8 @@ public class UserController {
 
         //try to register the user
         try{
+            //ENCRYPT THE PASSWORD USING BCRYPT!!
+            userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword()));
             userService.registerUser(userDTO);
             return ResponseEntity.status(201).body(userDTO.getUsername() + " was created!");
             //If this all works, send back a 201 CREATED, plus a confirmation message
@@ -44,28 +57,30 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestBody IncomingUserDTO userDTO, HttpSession session){
+    public ResponseEntity<?> loginUser(@RequestBody IncomingUserDTO userDTO){
 
-        //Get the User object from the service (which talks to the DB)
-        Optional<User> optionalUser = userService.loginUser(userDTO);
+        //attempt to login (notice no direct calls of the service/DAO)
+        try{
+            //this is what authenticates the incoming username/password
+            Authentication auth = authManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(userDTO.getUsername(), userDTO.getPassword())
+            );
 
-        //If login fails (which will return an empty optional), tell the user they failed
-        if(optionalUser.isEmpty()){
-            return ResponseEntity.status(401).body("Login Failed!");
+            //build up the user based on the validation
+            User user = (User) auth.getPrincipal();
+
+            //if the user is found/valid, generate a JWT!
+            String accessToken = jwtUtil.generateAccessToken(user);
+
+            //create our OutgoingUserDTO to send back (which will include, ID, Username, and JWT)
+            OutgoingUserDTO userOut = new OutgoingUserDTO(user.getUserId(), user.getUsername(), accessToken);
+
+            //finally we sent the OutgoingUserDTO back to the client
+            return ResponseEntity.ok(userOut);
+
+        } catch (Exception e){
+            return ResponseEntity.status(401).body(e.getMessage());
         }
-
-        //If login succeeds store the user info in our session
-        User u = optionalUser.get();
-
-        //Storing the user info in our session
-        session.setAttribute("userId", u.getUserId());
-        session.setAttribute("username", u.getUsername()); //probably won't use this
-
-        //Hypothetical role save to session
-        //session.setAttribute("role", u.getRole());
-
-        //Finally, send back a 200 (OK) as well as a OutgoingUserDTO
-        return ResponseEntity.ok(new OutgoingUserDTO(u.getUserId(), u.getUsername()));
 
     }
 

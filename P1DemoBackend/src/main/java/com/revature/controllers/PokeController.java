@@ -3,6 +3,7 @@ package com.revature.controllers;
 import com.revature.models.DTOs.IncomingPokeDTO;
 import com.revature.models.Pokemon;
 import com.revature.services.PokemonService;
+import com.revature.utils.JwtTokenUtil;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,43 +15,42 @@ import org.springframework.web.bind.annotation.*;
 public class PokeController {
 
     private PokemonService pokemonService;
+    private JwtTokenUtil jwtUtil;
 
     @Autowired
-    public PokeController(PokemonService pokemonService) {
+    public PokeController(PokemonService pokemonService, JwtTokenUtil jwtTokenUtil) {
         this.pokemonService = pokemonService;
+        this.jwtUtil = jwtTokenUtil;
     }
 
     //post mapping for inserting new pokemon
     @PostMapping()
-    public ResponseEntity<String> addPokemon(@RequestBody IncomingPokeDTO pokeDTO, HttpSession session){
+    public ResponseEntity<String> addPokemon(@RequestBody IncomingPokeDTO pokeDTO, @RequestHeader("Authorization") String token){
 
-        //If the user is not logged in (if the userId is null), send back a 401
-        if(session.getAttribute("userId") == null){
-            return ResponseEntity.status(401).body("Jenkins says:You must be logged in to catch Pokemon!");
-        }
+        //Extract and validate the User information from the JWT sent in the Authorization header
+        String jwt = token.substring(7); //remove "Bearer " from the token
+        int userId = jwtUtil.extractUserId(jwt); //send the jwt to the util to extract userId
+        System.out.println("User ID: " + userId);
 
-        //Now that we have user info saved (in our HTTP Session), we can attach the stored user Id to the pokeDTO
-        pokeDTO.setUserId((int) session.getAttribute("userId"));
-        //why do we need to cast to an int? getAttribute returns an Object
+        //TODO: use the hypothetical role extractor method to check role here
 
-        //TODO: try/catch once we decide to do some error handling
+        //we need to attach the userId to the pokeDTO
+        pokeDTO.setUserId(userId);
+
+        //TODO: we never put the service in a try/catch, would be nice
         Pokemon p = pokemonService.addPokemon(pokeDTO);
 
-        return ResponseEntity.status(201).body(
-                p.getUser().getUsername() + " caught " + p.getName());
+        return ResponseEntity.ok(p.getUser().getUsername() + " caught a " + p.getName() + "!");
 
     }
 
     @GetMapping
-    public ResponseEntity<?> getAllPokemon(HttpSession session){
+    public ResponseEntity<?> getAllPokemon(@RequestHeader("Authorization") String token){
 
-        //Login check
-        if(session.getAttribute("userId") == null){
-            return ResponseEntity.status(401).body("You must be logged in to see your Pokemon!");
-        }
-
-        //Get the userId from the session
-        int userId = (int) session.getAttribute("userId");
+        //Extract and validate the User information from the JWT sent in the Authorization header
+        String jwt = token.substring(7); //remove "Bearer " from the token
+        int userId = jwtUtil.extractUserId(jwt); //send the jwt to the util to extract userId
+        System.out.println("User ID: " + userId);
 
         //Why return in many line when one line do trick?
         return ResponseEntity.ok(pokemonService.getAllPokemon(userId));

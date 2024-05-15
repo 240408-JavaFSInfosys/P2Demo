@@ -1,15 +1,18 @@
 package com.revature.models;
 
 import jakarta.persistence.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import java.util.Collection;
 import java.util.List;
 
 
 @Component
 @Entity
 @Table(name="users")
-public class User {
+public class User implements UserDetails {
 
     //userId, username, password, no args, all args minus id, all args, getter/setter, tostring
 
@@ -81,4 +84,32 @@ public class User {
                 ", password='" + password + '\'' +
                 '}';
     }
+
+    //AUTHORIZATION OVERRIDES from the UserDetails Interface-----------
+    //to make use of JWTs in Spring Security, we need User to implement UserDetails
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return null;
+    }
+
 }

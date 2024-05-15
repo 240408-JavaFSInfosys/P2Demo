@@ -13,4 +13,7 @@ public interface UserDAO extends JpaRepository<User, Integer> {
     //This is what we'll use to check for valid login credentials
     public Optional<User> findByUsernameAndPassword(String username, String password);
 
+    //We need to add a custom method to find a user by username for our JWT/Spring Sec.
+    public Optional<User> findByUsername(String username);
+
 }
