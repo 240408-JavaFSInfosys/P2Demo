@@ -48,10 +48,16 @@ export const Catch: React.FC = () => {
     //this function will send the existing pokemon to the Database
     const catchPokemon = async () => {
 
-        //hardcode userId 1 for the pokemon's user
-        const response = await axios.post("http://localhost:8080/pokemon", 
-        pokemon,
-        {withCredentials:true})
+        console.log("Bearer: " + state.userSessionData.jwt)
+
+        const response = await axios.post("http://localhost:8080/pokemon", pokemon,
+            {
+              withCredentials: true,
+              headers: {
+                'Authorization': 'Bearer: ' + state.userSessionData.jwt
+              }
+            }
+          )
         .then((response) => {
             alert(state.userSessionData.username + " caught " + pokemon.name) 
             //{username} caught {pokemonname}!
