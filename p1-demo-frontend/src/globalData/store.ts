@@ -15,6 +15,7 @@ export const state:any = {
         jwt:""
     } as UserInterface,
 
+
     //storing the last caught pokemon for global display
     lastCaughtPokemon: {
         name:"",

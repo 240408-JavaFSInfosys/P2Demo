@@ -51,13 +51,13 @@ export const Catch: React.FC = () => {
         console.log("Bearer: " + state.userSessionData.jwt)
 
         const response = await axios.post("http://localhost:8080/pokemon", pokemon,
-            {
-              withCredentials: true,
-              headers: {
-                'Authorization': 'Bearer: ' + state.userSessionData.jwt
-              }
+        {
+            //withCredentials:true, <-- We don't need this since we're working with stateless JWTs
+            headers: {
+                'Authorization':'Bearer ' + state.userSessionData.jwt
             }
-          )
+        } 
+        )
         .then((response) => {
             alert(state.userSessionData.username + " caught " + pokemon.name) 
             //{username} caught {pokemonname}!

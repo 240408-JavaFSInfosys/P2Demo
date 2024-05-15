@@ -41,11 +41,13 @@ export const Login: React.FC = () => {
         {withCredentials:true})
         .then((response) => {
 
-            //if the login was successful, log the user in and store their info in global state
+            //if login was successful, log the user in and store their info in global state
             state.userSessionData = response.data
-            
+
+            //for visibility, print out the response data (which includes JWT)
             console.log(state.userSessionData)
 
+            //welcome the user
             alert("Welcome, " + state.userSessionData.username)
 
             //use our useNavigate hook to switch views to the Catch Pokemon Component

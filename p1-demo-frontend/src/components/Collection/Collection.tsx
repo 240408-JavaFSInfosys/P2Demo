@@ -23,9 +23,9 @@ export const Collection: React.FC = () => {
 
         //our GET request (remember to send withCredentials to confirm the user is logged in)
         const response = await axios.get("http://localhost:8080/pokemon", {
-            withCredentials: true,
+            //withCredentials:true, <-- We don't need this since we're working with stateless JWTs
             headers: {
-              'Authorization': 'Bearer: ' + state.userSessionData.jwt
+                'Authorization':'Bearer ' + state.userSessionData.jwt
             }
         })
 
