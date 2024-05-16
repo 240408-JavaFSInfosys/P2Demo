@@ -1,4 +1,4 @@
-import { useRef, useState } from "react"
+import { useContext, useRef, useState } from "react"
 import { PokemonInterface } from "../../interfaces/PokemonInterface"
 import "./Catch.css"
 import axios from "axios"
@@ -6,11 +6,15 @@ import { Pokemon } from "../Pokemon/Pokemon"
 import { isButtonElement } from "react-router-dom/dist/dom"
 import { useNavigate } from "react-router-dom"
 import { state } from "../../globalData/store"
+import { UserContext } from "../../globalData/UserContext"
 
 export const Catch: React.FC = () => {
 
     //A variable to store user input for finding a pokemon
     const [userInput, setUserInput] = useState(0)
+
+    //Defining useContext, only the globalUserData variable, since we won't change it here
+    const {globalUserData} = useContext(UserContext)
 
     //we need to store pokemon state to use when rendering the PokemonComponent
     const [pokemon, setPokemon] = useState<PokemonInterface>({
@@ -48,13 +52,15 @@ export const Catch: React.FC = () => {
     //this function will send the existing pokemon to the Database
     const catchPokemon = async () => {
 
-        console.log("Bearer: " + state.userSessionData.jwt)
+        //console.log("Bearer: " + state.userSessionData.jwt)
+        console.log(globalUserData)
 
         const response = await axios.post("http://localhost:8080/pokemon", pokemon,
         {
             //withCredentials:true, <-- We don't need this since we're working with stateless JWTs
             headers: {
-                'Authorization':'Bearer ' + state.userSessionData.jwt
+                //'Authorization':'Bearer ' + state.userSessionData.jwt
+                'Authorization':'Bearer ' + globalUserData.jwt
             }
         } 
         )
