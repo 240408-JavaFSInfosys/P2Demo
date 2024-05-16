@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import { PokemonInterface } from "../../interfaces/PokemonInterface"
 import axios from "axios"
 import { Pokemon } from "../Pokemon/Pokemon"
 import "./Collection.css"
 import { state } from "../../globalData/store"
+import { UserContext } from "../../globalData/UserContext"
 
 export const Collection: React.FC = () => {
 
@@ -12,6 +13,8 @@ export const Collection: React.FC = () => {
 
     //we'll store state that consists of an Array of PokemonInterface objects
     const [pokemon, setPokemon] = useState<PokemonInterface[]>([]) //start with empty array
+
+    const { userData } = useContext(UserContext);
 
     //I want to get all pokemon when the component renders, so we'll use useEffect
     useEffect(() => {
@@ -25,7 +28,7 @@ export const Collection: React.FC = () => {
         const response = await axios.get("http://localhost:8080/pokemon", {
             withCredentials: true,
             headers: {
-              'Authorization': 'Bearer: ' + state.userSessionData.jwt
+              'Authorization': 'Bearer: ' + userData.jwt
             }
         })
 
@@ -41,12 +44,12 @@ export const Collection: React.FC = () => {
 
         //TODO: throw some error if pokeId is typeof undefined
 
-        console.log("Bearer: " + state.userSessionData.jwt)
+        console.log("Bearer: " + userData.jwt)
 
         const response = await axios.delete("http://localhost:8080/pokemon/" + pokeId,{
             withCredentials: true,
             headers: {
-              'Authorization': 'Bearer: ' + state.userSessionData.jwt
+              'Authorization': 'Bearer: ' + userData.jwt
             }
         })
         .then((response) => alert(response.data))

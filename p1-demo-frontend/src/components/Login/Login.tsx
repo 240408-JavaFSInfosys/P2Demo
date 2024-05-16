@@ -1,9 +1,10 @@
 import { useNavigate } from "react-router-dom"
 import "./Login.css"
 import { UserInterface } from "../../interfaces/UserInterface"
-import { useState } from "react"
+import { useContext, useState } from "react"
 import axios from "axios"
 import { state } from "../../globalData/store"
+import { UserContext } from "../../globalData/UserContext"
 
 export const Login: React.FC = () => {
 
@@ -12,6 +13,9 @@ export const Login: React.FC = () => {
         username:"",
         password:""
     })
+
+    //a different state object for global user data (including JWT) thanks to Context API!
+    const { userData, setUserData } = useContext(UserContext);
 
     //we need a useNavigate hook to allow us to navigate between components... no more manual URL changes!
     const navigate = useNavigate()
@@ -42,11 +46,12 @@ export const Login: React.FC = () => {
         .then((response) => {
 
             //if the login was successful, log the user in and store their info in global state
-            state.userSessionData = response.data
+            setUserData(response.data)
             
-            console.log(state.userSessionData)
-
-            alert("Welcome, " + state.userSessionData.username)
+            //TODO: this won't show the username in time due to the async nature of axios requests!!!
+            //we COULD make a useEssect that listens for changes in userData.username
+            //then pops up an alert (which would only happen after successful login)
+            alert("Welcome, " + userData.username + " from context API")
 
             //use our useNavigate hook to switch views to the Catch Pokemon Component
             navigate("/catch")
