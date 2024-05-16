@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import { PokemonInterface } from "../../interfaces/PokemonInterface"
 import axios from "axios"
 import { Pokemon } from "../Pokemon/Pokemon"
 import "./Collection.css"
 import { state } from "../../globalData/store"
+import { UserContext } from "../../globalData/UserContext"
 
 export const Collection: React.FC = () => {
 
@@ -12,6 +13,9 @@ export const Collection: React.FC = () => {
 
     //we'll store state that consists of an Array of PokemonInterface objects
     const [pokemon, setPokemon] = useState<PokemonInterface[]>([]) //start with empty array
+
+    //Defining useContext, only the globalUserData variable, since we won't change it here
+    const {globalUserData} = useContext(UserContext)
 
     //I want to get all pokemon when the component renders, so we'll use useEffect
     useEffect(() => {
@@ -25,7 +29,7 @@ export const Collection: React.FC = () => {
         const response = await axios.get("http://localhost:8080/pokemon", {
             //withCredentials:true, <-- We don't need this since we're working with stateless JWTs
             headers: {
-                'Authorization':'Bearer ' + state.userSessionData.jwt
+                'Authorization':'Bearer ' + globalUserData.jwt
             }
         })
 
