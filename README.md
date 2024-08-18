@@ -9,4 +9,11 @@
   - Check the Utils package and application.properties for the JWT and Spring Security configuration
     
 - Context API for global storage on the front end
-  - Stores the JWT, with all the relevant user info and for use in axios requests   
+  - Stores the JWT, with all the relevant user info and for use in axios requests
+ 
+- UUIDs instead of int IDs
+
+- public deployment. RDS, EC2, S3.
+  - Check LoginComponent for S3 examples
+  - Check UserController for EC2 examples
+  - Check application.properties for RDS connection
